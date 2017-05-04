@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <device schemaVersion="1.1" xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="CMSIS-SVD_Schema_1_1.xsd">
-  <vendor>Freescale Semiconductor, Inc.</vendor>
-  <vendorID>Freescale</vendorID>
-  <series>Kinetis_K</series>
+  <vendor>NXP Semiconductors</vendor>
+  <vendorID>NXP</vendorID>
   <name>MK64F12</name>
+  <series>Kinetis_K</series>
   <version>1.6</version>
-  <description>MK64F12 Freescale Microcontroller</description>
-  <licenseText>Redistribution and use in source and binary forms, with or without modification,\nare permitted provided that the following conditions are met:\n o Redistributions of source code must retain the above copyright notice, this list\n   of conditions and the following disclaimer.\n o Redistributions in binary form must reproduce the above copyright notice, this\n   list of conditions and the following disclaimer in the documentation and/or\n   other materials provided with the distribution.\n o Neither the name of Freescale Semiconductor, Inc. nor the names of its\n   contributors may be used to endorse or promote products derived from this\n   software without specific prior written permission.\n THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND\n ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED\n WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE\n DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR\n ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES\n (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;\n LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON\n ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT\n (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS\n SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</licenseText>
+  <description>MK64F12 NXP Microcontroller</description>
+  <licenseText>Redistribution and use in source and binary forms, with or without modification,\nare permitted provided that the following conditions are met:\n o Redistributions of source code must retain the above copyright notice, this list\n   of conditions and the following disclaimer.\n o Redistributions in binary form must reproduce the above copyright notice, this\n   list of conditions and the following disclaimer in the documentation and/or\n   other materials provided with the distribution.\n o Neither the name of the copyright holder nor the names of its\n   contributors may be used to endorse or promote products derived from this\n   software without specific prior written permission.\n THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND\n ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED\n WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE\n DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR\n ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES\n (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;\n LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON\n ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT\n (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS\n SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</licenseText>
   <cpu>
     <name>CM4</name>
     <revision>r0p1</revision>
     <endian>little</endian>
-    <fpuPresent>true</fpuPresent>
     <mpuPresent>false</mpuPresent>
+    <fpuPresent>true</fpuPresent>
     <vtorPresent>true</vtorPresent>
     <nvicPrioBits>4</nvicPrioBits>
     <vendorSystickConfig>false</vendorSystickConfig>
@@ -20306,11 +20306,6 @@
                   <description>8-bit port size. Valid data is sampled and driven on FB_D[31:24] when BLS is 0b, or FB_D[7:0] when BLS is 1b.</description>
                   <value>#01</value>
                 </enumeratedValue>
-                <enumeratedValue>
-                  <name>1X</name>
-                  <description>16-bit port size. Valid data is sampled and driven on FB_D[31:16] when BLS is 0b, or FB_D[15:0] when BLS is 1b.</description>
-                  <value>#1x</value>
-                </enumeratedValue>
               </enumeratedValues>
             </field>
             <field>
@@ -20626,7 +20621,7 @@
       </registers>
     </peripheral>
     <peripheral>
-      <name>MPU</name>
+      <name>SYSMPU</name>
       <description>Memory protection unit</description>
       <prependToName>MPU_</prependToName>
       <baseAddress>0x4000D000</baseAddress>
@@ -24373,11 +24368,6 @@
                   <name>01</name>
                   <description>Error Passive</description>
                   <value>#01</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>1x</name>
-                  <description>Bus Off</description>
-                  <value>#1x</value>
                 </enumeratedValue>
               </enumeratedValues>
             </field>
@@ -36747,11 +36737,6 @@
               <access>read-write</access>
               <enumeratedValues>
                 <enumeratedValue>
-                  <name>0x</name>
-                  <description>Divide the system clock by 1.</description>
-                  <value>#0x</value>
-                </enumeratedValue>
-                <enumeratedValue>
                   <name>10</name>
                   <description>Divide the system clock by 4.</description>
                   <value>#10</value>
@@ -40335,11 +40320,6 @@
               <bitWidth>2</bitWidth>
               <access>read-write</access>
               <enumeratedValues>
-                <enumeratedValue>
-                  <name>0x</name>
-                  <description>Divide the system clock by 1.</description>
-                  <value>#0x</value>
-                </enumeratedValue>
                 <enumeratedValue>
                   <name>10</name>
                   <description>Divide the system clock by 4.</description>
@@ -43925,11 +43905,6 @@
               <access>read-write</access>
               <enumeratedValues>
                 <enumeratedValue>
-                  <name>0x</name>
-                  <description>Divide the system clock by 1.</description>
-                  <value>#0x</value>
-                </enumeratedValue>
-                <enumeratedValue>
                   <name>10</name>
                   <description>Divide the system clock by 4.</description>
                   <value>#10</value>
@@ -47513,11 +47488,6 @@
               <bitWidth>2</bitWidth>
               <access>read-write</access>
               <enumeratedValues>
-                <enumeratedValue>
-                  <name>0x</name>
-                  <description>Divide the system clock by 1.</description>
-                  <value>#0x</value>
-                </enumeratedValue>
                 <enumeratedValue>
                   <name>10</name>
                   <description>Divide the system clock by 4.</description>
@@ -55392,7 +55362,7 @@
           <addressOffset>0x1044</addressOffset>
           <size>32</size>
           <access>read-write</access>
-          <resetValue>0x10000</resetValue>
+          <resetValue>0x110000</resetValue>
           <resetMask>0xFFFFFFFF</resetMask>
           <fields>
             <field>
@@ -100674,11 +100644,6 @@
                   <description>Encoding 1 - High frequency range selected for the crystal oscillator .</description>
                   <value>#01</value>
                 </enumeratedValue>
-                <enumeratedValue>
-                  <name>1X</name>
-                  <description>Encoding 2 - Very high frequency range selected for the crystal oscillator .</description>
-                  <value>#1x</value>
-                </enumeratedValue>
               </enumeratedValues>
             </field>
             <field>
@@ -127545,11 +127510,6 @@
                   <name>1010</name>
                   <description>Timer Channel is configured for Output Compare - clear output on compare, set output on overflow</description>
                   <value>#1010</value>
-                </enumeratedValue>
-                <enumeratedValue>
-                  <name>10x1</name>
-                  <description>Timer Channel is configured for Output Compare - set output on compare, clear output on overflow</description>
-                  <value>#10x1</value>
                 </enumeratedValue>
                 <enumeratedValue>
                   <name>1110</name>
