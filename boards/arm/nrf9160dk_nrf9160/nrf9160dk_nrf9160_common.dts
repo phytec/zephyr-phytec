@@ -122,15 +122,6 @@
 	cts-pin = <26>;
 };
 
-&uart1 {
-	status = "okay";
-	current-speed = <115200>;
-	tx-pin = <1>;
-	rx-pin = <0>;
-	rts-pin = <14>;
-	cts-pin = <15>;
-};
-
 &uart2 {
 	tx-pin = <24>;
 	rx-pin = <23>;
