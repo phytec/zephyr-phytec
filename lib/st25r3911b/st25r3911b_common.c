@@ -138,63 +138,11 @@ static int osc_start(void)
 	return 0;
 }
 
-static int measure_voltage(uint8_t source, uint32_t *voltage)
-{
-	int err;
-	uint8_t reg;
-	uint32_t result;
-	uint32_t irq_mask;
-
-	source &= ST25R3911B_REG_REGULATOR_CTRL_MPSV_MASK;
-
-	/* Set measure source to VDD. */
-	err = st25r3911b_reg_modify(ST25R3911B_REG_REGULATOR_CTRL,
-				    ST25R3911B_REG_REGULATOR_CTRL_MPSV_MASK,
-				    source);
-	if (err) {
-		return err;
-	}
-
-	irq_mask = ST25R3911B_IRQ_MASK_DCT;
-
-	err = command_process(ST25R3911B_CMD_MEASURE_POWER_SUPPLY,
-			      &irq_mask,
-			      T_POWER_SUPP_MEAS);
-	if (err) {
-		return err;
-	}
-
-	LOG_DBG("Power supply voltage measurement");
-
-	/* Get result */
-	err = st25r3911b_reg_read(ST25R3911B_REG_AD_CONVERTER_OUT, &reg);
-	if (err) {
-		return err;
-	}
-
-	/* Calculate voltage level in mV */
-	result = reg * POWER_SUPP_MEAS_INTEGER;
-	result += ((reg * POWER_SUPP_MEAS_FRACTION) +
-		    POWER_SUPP_MEAS_FRACTION_DIVISOR / 2) /
-		    POWER_SUPP_MEAS_FRACTION_DIVISOR;
-
-	*voltage = result;
-
-	LOG_DBG("Measured supply voltage %u mV", result);
-
-	return 0;
-}
-
 static int calibrate_antenna(void)
 {
 	int err;
 	uint8_t reg = 0;
 	uint32_t irq_mask;
-
-	err = st25r3911b_reg_read(ST25R3911B_REG_ANTENNA_CAL_CTRL, &reg);
-	if (err) {
-		return err;
-	}
 
 	/* Check if is possible to automatic calibration. */
 	if (reg & ST25R3911B_REG_ANTENNA_CAL_CTRL_TRIM_S) {
@@ -300,6 +248,83 @@ static int adjust_regulator(uint32_t *mV_adjust)
 	return 0;
 }
 
+int st25r3911b_measure_amplitude()
+{
+	int err;
+	uint8_t ad_ret, direct_cmd;
+	uint32_t irq_mask;
+
+	err = st25r3911b_rx_tx_disable();
+
+	irq_mask = ST25R3911B_IRQ_MASK_DCT;
+
+	direct_cmd = ST25R3911B_CMD_MEASURE_AMPLITUDE;
+	err = command_process(direct_cmd, &irq_mask, T_COMMON_CMD);
+	if (err) {
+		LOG_ERR("Amplitude Measurement failed to get interrupt: %d", err);
+		return -1;
+	}
+
+	/* Check result. */
+	err = st25r3911b_reg_read(ST25R3911B_REG_AD_CONVERTER_OUT, &ad_ret);
+	if (err) {
+		LOG_ERR("Amplitude Measurement failed: %d\n", err);
+		return -1;
+	}
+	return ad_ret;
+}
+
+int st25r3911b_measure_phase()
+{
+	int err;
+	uint8_t ad_ret, direct_cmd;
+	uint32_t irq_mask;
+
+	err = st25r3911b_rx_tx_disable();
+
+	irq_mask = ST25R3911B_IRQ_MASK_DCT;
+
+	direct_cmd = ST25R3911B_CMD_MEASURE_PHASE;
+	err = command_process(direct_cmd, &irq_mask, T_COMMON_CMD);
+	if (err) {
+		LOG_ERR("Phase Measurement failed to get interrupt: %d", err);
+		return -1;
+	}
+	/* Check result. */
+	err = st25r3911b_reg_read(ST25R3911B_REG_AD_CONVERTER_OUT, &ad_ret);
+	if (err) {
+		LOG_ERR("Phase Measurement failed: %d", err);
+		return -1;
+	}
+	return ad_ret;
+}
+
+int st25r3911b_measure_cap()
+{
+	int err;
+	uint8_t ad_ret, direct_cmd;
+	uint32_t irq_mask;
+
+	err = st25r3911b_rx_tx_disable();
+
+	irq_mask = ST25R3911B_IRQ_MASK_DCT;
+
+	direct_cmd = ST25R3911B_CMD_MEASURE_CAP;
+	err = command_process(direct_cmd, &irq_mask, T_COMMON_CMD);
+	if (err) {
+		LOG_ERR("Capacitance Measurement failed to get interrupt: %d", err);
+		return -1;
+	}
+
+	/* Check result. */
+	err = st25r3911b_reg_read(ST25R3911B_REG_AD_CONVERTER_OUT, &ad_ret);
+	if (err) {
+		LOG_ERR("Capacitance Measurement failed: %d", err);
+		return -1;
+	}
+	return ad_ret;
+}
+
 int st25r3911b_rx_tx_disable(void)
 {
 	uint8_t mask = ST25R3911B_REG_OP_CTRL_TX_EN |
@@ -348,9 +373,87 @@ int st25r3911b_mask_receive_timer_set(uint32_t fc)
 				    ST25R3911B_FC_TO_64FC(fc));
 }
 
+int st25r3911b_resume(void)
+{
+	int err;
+
+	err = st25r3911b_reg_write(ST25R3911B_REG_OP_CTRL,
+								0x00);
+	if (err) {
+		return err;
+	}
+
+	err = st25r3911b_reg_write(ST25R3911B_REG_OP_CTRL, 0x00);
+	if (err) {
+		return err;
+	}
+
+	/* By default all interrupts are on, so disable them */
+	err = st25r3911b_irq_disable(ST25R3911B_IRQ_MASK_ALL);
+	if (err) {
+		return err;
+	}
+
+	/* Clear all interrupts */
+	err = st25r39_irq_clear();
+	if (err) {
+		return err;
+	}
+
+	/* Start oscillator and wait for it to be stable */
+	err = osc_start();
+	if (err) {
+		LOG_ERR("Oscillator start failed");
+		return err;
+	}
+
+	/* Disable RX and TX mode */
+	err = st25r3911b_rx_tx_disable();
+	if (err) {
+		return err;
+	}
+
+	/* Clear FIFO */
+	return st25r3911b_cmd_execute(ST25R3911B_CMD_CLEAR);
+
+}
+
+int st25r3911b_sleep(void)
+{
+	int err;
+
+	err = st25r3911b_reg_write(ST25R3911B_REG_OP_CTRL, 0x00);
+	if (err) {
+		return err;
+	}
+
+	/* By default all interrupts are on, so disable them */
+	err = st25r3911b_irq_disable(ST25R3911B_IRQ_MASK_ALL);
+	if (err) {
+		return err;
+	}
+
+	/* Clear all interrupts */
+	err = st25r39_irq_clear();
+	if (err) {
+		return err;
+	}
+
+	/* Disable RX and TX mode */
+	err = st25r3911b_rx_tx_disable();
+	if (err) {
+		return err;
+	}
+
+	/* Clear FIFO */
+	return st25r3911b_cmd_execute(ST25R3911B_CMD_CLEAR);
+}
+
 int st25r3911b_init(void)
 {
 	int err;
+	uint8_t reg;
+	uint32_t mV = 0;
 
 	err = st25r3911b_spi_init();
 	if (err) {
@@ -382,18 +485,8 @@ int st25r3911b_init(void)
 		return err;
 	}
 
-	uint32_t mV = 0;
 
-	/* Measure a supply voltage to detect if device
-	 * is powered by 5V or 3.3V.
-	 */
-	err = measure_voltage(ST25R3911B_REG_REGULATOR_CTRL_MPSV_VDD, &mV);
-	if (err) {
-		LOG_ERR("Voltage measure failed");
-		return err;
-	}
-
-	/* Set power supply 5V or 3V3 */
+	/* Set power supply to 3V3 */
 	err = st25r3911b_reg_modify(ST25R3911B_REG_IO_CONF2,
 				    ST25R3911B_REG_IO_CONF2_SUP3V,
 				    ST25R3911B_REG_IO_CONF2_SUP3V);
@@ -408,6 +501,7 @@ int st25r3911b_init(void)
 		LOG_ERR("Regulator adjust failed");
 		return err;
 	}
+	LOG_DBG("Adjusted regulator to %d mV", mV);
 
 	/* Calibrate antenna, according to errata
 	 * this should be always done twice
@@ -424,10 +518,30 @@ int st25r3911b_init(void)
 		return err;
 	}
 
-	/* Adjust regulator after antenna calibration */
-	err = adjust_regulator(&mV);
+	err = st25r3911b_reg_read(ST25R3911B_REG_ANTENNA_CAL_DISP, &reg);
 	if (err) {
-		LOG_ERR("Regulator adjust failed");
+		return err;
+	}
+	LOG_INF("Antenna Auto Cal val: %d", reg);
+
+	LOG_INF("Using manual trim settings");
+	err = st25r3911b_reg_write(ST25R3911B_REG_ANTENNA_CAL_CTRL,
+						ST25R3911B_REG_ANTENNA_CAL_CTRL_TRE0 |
+						ST25R3911B_REG_ANTENNA_CAL_CTRL_TRE1 |
+						ST25R3911B_REG_ANTENNA_CAL_CTRL_TRE2 |
+						ST25R3911B_REG_ANTENNA_CAL_CTRL_TRE3 |
+						ST25R3911B_REG_ANTENNA_CAL_CTRL_TRIM_S);
+	if (err) {
+		return err;
+	}
+
+	/* Disable Clock on MCU_CLK to save power */
+	err = st25r3911b_reg_write(ST25R3911B_REG_IO_CONF1, 0x0f);
+	err = st25r3911b_reg_modify(ST25R3911B_REG_IO_CONF1, 0,
+					    ST25R3911B_REG_IO_CONF1_OUT_CL0 |
+					    ST25R3911B_REG_IO_CONF1_OUT_CL1 |
+					    ST25R3911B_REG_IO_CONF1_OSC);
+	if (err) {
 		return err;
 	}
 
@@ -453,15 +567,15 @@ int st25r3911b_tx_len_set(uint16_t len)
 	msb_val = (len >> ST25R3911B_REG_NUM_TX_BYTES_NTX_SHIFT_LSB) & 0xFF;
 
 	err = st25r3911b_reg_modify(ST25R3911B_REG_NUM_TX_BYTES_REG2,
-				    ST25R3911B_REG_NUM_TX_BYTES_REG2_NTX_MASK,
-				    (len << ST25R3911B_REG_NUM_TX_BYTES_NTX_SHIFT) &
-				    ST25R3911B_REG_NUM_TX_BYTES_REG2_NTX_MASK);
+								ST25R3911B_REG_NUM_TX_BYTES_REG2_NTX_MASK,
+								(len << ST25R3911B_REG_NUM_TX_BYTES_NTX_SHIFT) &
+								ST25R3911B_REG_NUM_TX_BYTES_REG2_NTX_MASK);
 	if (err) {
 		return err;
 	}
 
 	err = st25r3911b_reg_write(ST25R3911B_REG_NUM_TX_BYTES_REG1,
-				   msb_val);
+								msb_val);
 	if (!err) {
 		LOG_DBG("Fifo Tx length set to %u", len);
 	}
@@ -477,12 +591,13 @@ int st25r3911b_field_on(uint8_t collision_threshold, uint8_t peer_threshold,
 
 	if (collision_threshold != ST25R3911B_NO_THRESHOLD_ANTICOLLISION) {
 		err = st25r3911b_reg_modify(ST25R3911B_REG_FIELD_THRESHOLD,
-					    ST25R3911B_REG_FIELD_THRESHOLD_RFE_MASK,
-					    collision_threshold & ST25R3911B_REG_FIELD_THRESHOLD_RFE_MASK);
+									ST25R3911B_REG_FIELD_THRESHOLD_RFE_MASK,
+									collision_threshold &
+									ST25R3911B_REG_FIELD_THRESHOLD_RFE_MASK);
 	} else {
 		err = st25r3911b_reg_modify(ST25R3911B_REG_FIELD_THRESHOLD,
-					    ST25R3911B_REG_FIELD_THRESHOLD_RFE_MASK,
-					    FIELD_THRESHOLD_RFE_DEFAULT);
+									ST25R3911B_REG_FIELD_THRESHOLD_RFE_MASK,
+									FIELD_THRESHOLD_RFE_DEFAULT);
 	}
 
 	if (err) {
@@ -491,12 +606,12 @@ int st25r3911b_field_on(uint8_t collision_threshold, uint8_t peer_threshold,
 
 	if (peer_threshold != ST25R3911B_NO_THRESHOLD_ANTICOLLISION) {
 		err = st25r3911b_reg_modify(ST25R3911B_REG_FIELD_THRESHOLD,
-					    ST25R3911B_REG_FIELD_THRESHOLD_TRG_MASK,
-					    peer_threshold << ST25R3911B_REG_FIELD_THRESHOLD_TRG_IO);
+					ST25R3911B_REG_FIELD_THRESHOLD_TRG_MASK,
+					peer_threshold << ST25R3911B_REG_FIELD_THRESHOLD_TRG_IO);
 	} else {
 		err = st25r3911b_reg_modify(ST25R3911B_REG_FIELD_THRESHOLD,
-					    ST25R3911B_REG_FIELD_THRESHOLD_TRG_MASK,
-					    FIELD_THRESHOLD_TRG_DEFAULT);
+				ST25R3911B_REG_FIELD_THRESHOLD_TRG_MASK,
+				FIELD_THRESHOLD_TRG_DEFAULT);
 	}
 
 	if (err) {
@@ -508,8 +623,7 @@ int st25r3911b_field_on(uint8_t collision_threshold, uint8_t peer_threshold,
 	LOG_DBG("Wait for field on");
 
 	err = command_process(ST25R3911B_CMD_NFC_INITIAL_FIELD_ON,
-			      &irq_mask,
-			      T_CA_TIMEOUT);
+							&irq_mask, T_CA_TIMEOUT);
 	if (err) {
 		return err;
 	}
@@ -523,7 +637,7 @@ int st25r3911b_field_on(uint8_t collision_threshold, uint8_t peer_threshold,
 			LOG_DBG("Field on, wait GT time %u ms", delay);
 
 			/* Wait specific Guard Time when listener
-			 * is exposedto an Unmodulated Carrier.
+			 * is exposed to an Unmodulated Carrier.
 			 */
 			k_sleep(K_MSEC(delay));
 

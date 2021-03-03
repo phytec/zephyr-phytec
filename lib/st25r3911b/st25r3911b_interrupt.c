@@ -172,7 +172,7 @@ uint32_t st25r3911b_irq_wait_for_irq(uint32_t mask, int32_t timeout)
 
 	err = k_sem_take(sem, K_MSEC(timeout));
 	if (err) {
-		LOG_DBG("Wait for interrupt %u, not received in time %u ms",
+		LOG_INF("Wait for interrupt %u, not received in time %u ms",
 			mask, timeout);
 		return 0;
 	}

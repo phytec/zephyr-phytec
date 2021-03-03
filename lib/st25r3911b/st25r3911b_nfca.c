@@ -707,8 +707,20 @@ static int irq_process(void)
 {
 	int err = 0;
 	uint32_t irq;
+	uint8_t phase;
 
 	irq = st25r3911b_irq_read();
+	
+	if (irq & ST25R3911B_IRQ_MASK_WT) {
+		LOG_DBG("WT INT");
+	}
+	
+	if (irq & ST25R3911B_IRQ_MASK_WPH) {
+		LOG_DBG("WPH INT");
+		nfca.cb->phase_detected();
+		err = st25r3911b_reg_read(ST25R3911B_REG_PHASE_MEASURE_DISP, &phase);
+		LOG_DBG("Phase: %d", phase);
+	}
 
 	if (irq & ST25R3911B_IRQ_MASK_TXE) {
 		nfca.state.txrx = TX_STATE_COMPLETE;
@@ -1065,6 +1077,39 @@ int st25r3911b_nfca_process(void)
 	return 0;
 }
 
+int st25r3911b_nfca_sleep(void)
+{
+	int err;
+	
+	err = st25r3911b_sleep();
+	if (err) {
+		return err;
+	}
+	return 0;
+}
+
+int st25r3911b_nfca_resume(void)
+{
+	int err;
+	
+	err = st25r3911b_resume();
+	if (err) {
+		return err;
+	}
+	
+	/* Set default state */
+	state_set(STATE_IDLE);
+
+	/* Presets RX and TX configuration */
+	err = st25r3911b_cmd_execute(ST25R3911B_CMD_ANALOG_PRESET);
+	if (err) {
+		LOG_ERR("RX and TX analog configuration failed");
+		return err;
+	}
+
+	return 0;
+}
+
 int st25r3911b_nfca_init(struct k_poll_event *events, uint8_t cnt,
 			 const struct st25r3911b_nfca_cb *cb)
 {
@@ -1126,18 +1171,86 @@ int st25r3911b_nfca_init(struct k_poll_event *events, uint8_t cnt,
 
 	k_work_init_delayable(&timeout_work, timeout_handler);
 
-	/* Turn on NFC-A led */
-	//err = st25r3911b_technology_led_set(ST25R3911B_NFCA_LED, true);
-	//if (err) {
-	//	LOG_ERR("NFCA led enabling failed");
-	//	return err;
-	//}
-
 	/* NFC-A events initialization */
 	nfca_events = events;
 
 	nfca_event_init(nfca_events);
 
+	return 0;
+}
+
+/* Low Power Wake up mode
+ * 1. Disable TX, RX Mode and set EN Bit to 0
+ * 2. Set up Wake-Up Timer Control register to configure WU mode
+ * 3. Enable Wake up Mode by setting WU flag
+ * */
+int st25r3911b_set_phase_wu_mode(uint8_t phase_delta)
+{
+	int err;
+	LOG_INF("Phase WU delta: %d", phase_delta);
+	
+	/* Set default state */
+	state_set(STATE_IDLE);
+	
+	/* Clear FIFO */
+	err = st25r3911b_cmd_execute(ST25R3911B_CMD_CLEAR);
+	if (err) {
+		return err;
+	}
+	
+	/* Disable all interrupts */
+	err = st25r3911b_irq_disable(ST25R3911B_IRQ_MASK_ALL);
+	if (err) {
+		return err;
+	}
+
+	/* Clear all interrupts */
+	err = st25r39_irq_clear();
+	if (err) {
+		return err;
+	}
+	
+	/*
+	 * Set Wake-Up timer to 100 ms and perform a Phase measurement afterwards
+	 */
+	err = st25r3911b_reg_write(ST25R3911B_REG_WAKE_UP_TIM,
+								ST25R3911B_REG_WAKE_UP_TIM_WPH);
+	if (err) {
+		return err;
+	}
+	
+	/*
+	 * set delta to reference, set to auto-averaging
+	 */
+	if (phase_delta > 16) {
+		LOG_ERR("Phase Delta must be between 0 to 16");
+		return -EINVAL;
+	}
+	err = st25r3911b_reg_write(ST25R3911B_REG_PHASE_MEASURE_CONF,
+					(phase_delta << 4) | ST25R3911B_REG_AMP_MEASURE_CONF_AM_AE);
+	if (err) {
+		return err;
+	}
+
+	err = st25r3911b_reg_write(ST25R3911B_REG_OP_CTRL,
+								ST25R3911B_REG_OP_CTRL_WU);
+	if (err) {
+		return err;
+	}
+	/* Clear FIFO */
+	err = st25r3911b_cmd_execute(ST25R3911B_CMD_START_WAKE_UP_TIMER);
+	if (err) {
+		return err;
+	}
+	
+	/* Enable necessary interrupts */
+	err = st25r3911b_irq_enable(ST25R3911B_IRQ_MASK_WPH);
+
+	if (err) {
+		return err;
+	}
+	LOG_INF("Activated Wake-Up Mode");
+	
 	return 0;
 }
 

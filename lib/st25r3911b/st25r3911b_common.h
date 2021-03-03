@@ -73,6 +73,25 @@ enum st25r3911b_leds {
 #define ST25R3911B_FC_TO_4096FC(_fc) \
 	DIV_ROUND_UP((_fc), NFC_1FC_IN_4096FC)
 
+/** @brief Set the NFC reader to deep sleep.
+ *
+ *  @details 
+ *
+ *  @retval 0  If the operation was successful.
+ *             Otherwise, a (negative) error code is returned.
+ */
+int st25r3911b_sleep(void);
+
+
+/** @brief Resume the NFC reader after Wake-up event.
+ *
+ *  @details 
+ *
+ *  @retval 0  If the operation was successful.
+ *             Otherwise, a (negative) error code is returned.
+ */
+int st25r3911b_resume(void);
+
 /** @brief Initialize the NFC reader.
  *
  *  @details The NFC reader initialization is common for all
