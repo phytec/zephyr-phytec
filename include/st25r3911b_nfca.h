@@ -161,6 +161,10 @@ struct st25r3911b_nfca_cb {
 	/** @brief NFC-A tag sleep state notification.
 	 */
 	void (*tag_sleep)(void);
+
+	/** @brief Phase detection trigger notification.
+	 */
+	void (*phase_detected)(void);
 };
 
 /** @brief Initialize NFC Reader NFC-A technology.
@@ -178,6 +182,40 @@ struct st25r3911b_nfca_cb {
 int st25r3911b_nfca_init(struct k_poll_event *events, uint8_t cnt,
 			  const struct st25r3911b_nfca_cb *cb);
 
+/** @brief Set NFC reader to sleep (Clear EN Bit).
+ *
+ *  @details tbd
+ *
+ *  @retval 0 If the operation was successful.
+ *            Otherwise, a (negative) error code is returned.
+ */
+int st25r3911b_nfca_sleep(void);
+
+
+/** @brief Resume after Wake-up.
+ *
+ *  @details tbd
+ *
+ *  @retval 0 If the operation was successful.
+ *            Otherwise, a (negative) error code is returned.
+ */
+int st25r3911b_nfca_resume(void);
+
+/** @brief Set up Wake up mode.
+ *
+ *  @details tbd
+ *
+ *  @retval 0 If the operation was successful.
+ *            Otherwise, a (negative) error code is returned.
+ */
+int st25r3911b_set_phase_wu_mode(uint8_t phase_delta);
+
+int st25r3911b_measure_phase(void);
+
+int st25r3911b_measure_amplitude(void);
+
+int st25r3911b_measure_cap(void);
+
 /** @brief Switch on the NFC Reader field.
  *
  *  @details If the field is switched on successfully,
@@ -186,6 +224,7 @@ int st25r3911b_nfca_init(struct k_poll_event *events, uint8_t cnt,
  *  @retval 0 If the operation was successful.
  *            Otherwise, a (negative) error code is returned.
  */
+
 int st25r3911b_nfca_field_on(void);
 
 /** @brief Switch off the NFC Reader field.
