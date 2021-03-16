@@ -78,6 +78,13 @@ static int frdm_kw41z_pinmux_init(const struct device *dev)
 	pinmux_pin_set(portb, 16, PORT_PCR_MUX(kPORT_MuxAlt4));
 	pinmux_pin_set(portb, 17, PORT_PCR_MUX(kPORT_MuxAlt4));
 #endif
+	
+	// V1V8
+	pinmux_pin_set(portb,  0, PORT_PCR_MUX(kPORT_MuxAsGpio));
+	// V3V3
+	pinmux_pin_set(portb,  1, PORT_PCR_MUX(kPORT_MuxAsGpio));
+	// LP5569_EN
+	pinmux_pin_set(porta,  17, PORT_PCR_MUX(kPORT_MuxAsGpio));
 
 	return 0;
 }

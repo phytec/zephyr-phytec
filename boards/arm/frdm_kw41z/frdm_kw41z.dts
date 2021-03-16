@@ -32,7 +32,7 @@
 	leds {
 		compatible = "gpio-leds";
 		red_led: led_0 {
-			gpios = <&gpioc 1 GPIO_ACTIVE_LOW>;
+			gpios = <&gpiob 0 GPIO_ACTIVE_LOW>;
 			label = "User LD1";
 		};
 		green_led: led_1 {
@@ -120,6 +120,12 @@
 		label = "FXOS8700";
 		int1-gpios = <&gpioc 1 GPIO_ACTIVE_LOW>;
 	};
+	
+	lp5569@40 {
+		compatible = "ti,lp5569";
+		reg = <0x40>;
+		label = "LP5569";
+	};
 };
 
 &lpuart0 {
@@ -128,6 +134,10 @@
 };
 
 &gpioa {
+	status = "okay";
+};
+
+&gpiob {
 	status = "okay";
 };
 
