@@ -17,7 +17,7 @@
 #include "st25r3911b_spi.h"
 #include "st25r3911b_interrupt.h"
 
-LOG_MODULE_DECLARE(st25r3911b);
+LOG_MODULE_DECLARE(st25r3911b, CONFIG_ST25R3911B_LIB_LOG_LEVEL);
 
 #define NFCA_MIN_LISTEN_FDT 1172
 
@@ -704,11 +704,11 @@ static int irq_process(void)
 	uint8_t phase;
 
 	irq = st25r3911b_irq_read();
-	
+
 	if (irq & ST25R3911B_IRQ_MASK_WT) {
 		LOG_DBG("WT INT");
 	}
-	
+
 	if (irq & ST25R3911B_IRQ_MASK_WPH) {
 		LOG_DBG("WPH INT");
 		nfca.cb->phase_detected();
@@ -747,6 +747,7 @@ static int irq_process(void)
 	}
 
 	if (irq & ST25R3911B_IRQ_MASK_COL) {
+		state_set(STATE_ANTICOLLISION);
 		err = on_collision();
 	}
 
@@ -759,6 +760,8 @@ static int irq_process(void)
 			timeout_process();
 		}
 	}
+
+	LOG_DBG("Process return %d", err);
 
 	return err;
 }
@@ -1074,7 +1077,7 @@ int st25r3911b_nfca_process(void)
 int st25r3911b_nfca_sleep(void)
 {
 	int err;
-	
+
 	err = st25r3911b_sleep();
 	if (err) {
 		return err;
@@ -1085,12 +1088,12 @@ int st25r3911b_nfca_sleep(void)
 int st25r3911b_nfca_resume(void)
 {
 	int err;
-	
+
 	err = st25r3911b_resume();
 	if (err) {
 		return err;
 	}
-	
+
 	/* Set default state */
 	state_set(STATE_IDLE);
 
@@ -1182,28 +1185,10 @@ int st25r3911b_set_phase_wu_mode(uint8_t phase_delta)
 {
 	int err;
 	LOG_INF("Phase WU delta: %d", phase_delta);
-	
+
 	/* Set default state */
 	state_set(STATE_IDLE);
-	
-	/* Clear FIFO */
-	err = st25r3911b_cmd_execute(ST25R3911B_CMD_CLEAR);
-	if (err) {
-		return err;
-	}
-	
-	/* Disable all interrupts */
-	err = st25r3911b_irq_disable(ST25R3911B_IRQ_MASK_ALL);
-	if (err) {
-		return err;
-	}
 
-	/* Clear all interrupts */
-	err = st25r39_irq_clear();
-	if (err) {
-		return err;
-	}
-	
 	/*
 	 * Set Wake-Up timer to 100 ms and perform a Phase measurement afterwards
 	 */
@@ -1212,7 +1197,7 @@ int st25r3911b_set_phase_wu_mode(uint8_t phase_delta)
 	if (err) {
 		return err;
 	}
-	
+
 	/*
 	 * set delta to reference, set to auto-averaging
 	 */
@@ -1236,7 +1221,7 @@ int st25r3911b_set_phase_wu_mode(uint8_t phase_delta)
 	if (err) {
 		return err;
 	}
-	
+
 	/* Enable necessary interrupts */
 	err = st25r3911b_irq_enable(ST25R3911B_IRQ_MASK_WPH);
 
@@ -1244,7 +1229,7 @@ int st25r3911b_set_phase_wu_mode(uint8_t phase_delta)
 		return err;
 	}
 	LOG_INF("Activated Wake-Up Mode");
-	
+
 	return 0;
 }
 

@@ -17,7 +17,7 @@
 #include "st25r3911b_common.h"
 #include "st25r3911b_dt.h"
 
-LOG_MODULE_DECLARE(st25r3911b);
+LOG_MODULE_DECLARE(st25r3911b, CONFIG_ST25R3911B_LIB_LOG_LEVEL);
 
 #define T_OSC_STABLE 10
 #define T_POWER_SUPP_MEAS 100
@@ -373,12 +373,6 @@ int st25r3911b_mask_receive_timer_set(uint32_t fc)
 int st25r3911b_resume(void)
 {
 	int err;
-
-	err = st25r3911b_reg_write(ST25R3911B_REG_OP_CTRL,
-								0x00);
-	if (err) {
-		return err;
-	}
 
 	err = st25r3911b_reg_write(ST25R3911B_REG_OP_CTRL, 0x00);
 	if (err) {
