@@ -377,12 +377,6 @@ int st25r3911b_resume(void)
 {
 	int err;
 
-	err = st25r3911b_reg_write(ST25R3911B_REG_OP_CTRL,
-								0x00);
-	if (err) {
-		return err;
-	}
-
 	err = st25r3911b_reg_write(ST25R3911B_REG_OP_CTRL, 0x00);
 	if (err) {
 		return err;
