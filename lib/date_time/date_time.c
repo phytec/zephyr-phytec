@@ -66,7 +66,7 @@ static struct k_delayed_work time_work;
 
 static struct time_aux {
 	int64_t date_time_utc;
-	int last_date_time_update;
+	int64_t last_date_time_update;
 } time_aux;
 
 static bool initial_valid_time;
