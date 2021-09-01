@@ -71,7 +71,7 @@ LOG_MODULE_DECLARE(st25r3911b, CONFIG_ST25R3911B_LIB_LOG_LEVEL);
 /* NFC-A CRC initial value. NFC Forum Digital 2.0 6.4.1.3. */
 #define NFCA_CRC_INITIAL_VALUE 0x6363
 
-#define RXS_TIMEOUT 200
+#define RXS_TIMEOUT 50
 
 extern const k_tid_t thread;
 
@@ -763,6 +763,7 @@ static int irq_process(void)
 
 	if (irq & ST25R3911B_IRQ_MASK_NRE) {
 		if (nfca.state.txrx != RX_STATE_START) {
+			LOG_DBG("No response timer triggered, trigger timeout in app");
 			timeout_process();
 		}
 	}
