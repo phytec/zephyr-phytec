@@ -518,17 +518,6 @@ int st25r3911b_init(void)
 	}
 	LOG_INF("Antenna Auto Cal val: %d", reg);
 
-	LOG_INF("Using manual trim settings");
-	err = st25r3911b_reg_write(ST25R3911B_REG_ANTENNA_CAL_CTRL,
-						ST25R3911B_REG_ANTENNA_CAL_CTRL_TRE0 |
-						ST25R3911B_REG_ANTENNA_CAL_CTRL_TRE1 |
-						ST25R3911B_REG_ANTENNA_CAL_CTRL_TRE2 |
-						ST25R3911B_REG_ANTENNA_CAL_CTRL_TRE3 |
-						ST25R3911B_REG_ANTENNA_CAL_CTRL_TRIM_S);
-	if (err) {
-		return err;
-	}
-
 	/* Disable Clock on MCU_CLK to save power */
 	err = st25r3911b_reg_write(ST25R3911B_REG_IO_CONF1, 0x0f);
 	err = st25r3911b_reg_modify(ST25R3911B_REG_IO_CONF1, 0,
