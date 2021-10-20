@@ -59,6 +59,9 @@ LOG_MODULE_REGISTER(lp5569, LOG_LEVEL);
 #define LP5569_LED7_CURRENT         0x29 /* LED7 Current Control */
 #define LP5569_LED8_CURRENT         0x2A /* LED8 Current Control */
 
+#define LP5569_MISC					0x2F /* Miscellaneous Register */
+#define LP5569_POWERSAVE_EN			(1 << 5) /* en for auto powersave mode */
+
 struct lp5569_cfg {
 	char *i2c_dev_name;
 	uint16_t i2c_addr;
@@ -159,7 +162,7 @@ static int lp5569_led_init(const struct device *dev)
 	k_sleep(K_MSEC(1));
 
 	/* Set default current for all leds once. LEDs will be controlled via PWM
-	 * within this driver instead.*/
+	 * within this driver.*/
 	for(led_offs=0; led_offs < LP5569_NUM_LEDS; led_offs++) {
 		if (i2c_reg_write_byte(data->i2c, config->i2c_addr,
 				       LP5569_LED0_CURRENT + led_offs,
@@ -172,6 +175,12 @@ static int lp5569_led_init(const struct device *dev)
 			LOG_ERR("LED reg update failed");
 			return -EIO;
 		}
+	}
+
+	if (i2c_reg_write_byte(data->i2c, config->i2c_addr,
+			       LP5569_MISC, LP5569_POWERSAVE_EN)) {
+		LOG_ERR("LED reg update failed");
+		return -EIO;
 	}
 
 	return 0;
