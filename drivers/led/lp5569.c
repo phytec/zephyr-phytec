@@ -31,10 +31,10 @@
 LOG_MODULE_REGISTER(lp5569, LOG_LEVEL);
 
 #include "led_context.h"
-	
+
 #define LP5569_NUM_LEDS					9
 #define LP5569_DEFAULT_LED_CURRENT		255
-#define LP5569_DEFAULT_DUTY_CYCLE_ON	255
+#define LP5569_DEFAULT_DUTY_CYCLE_ON	100
 #define LP5569_LED_OFFSET_MAX			8
 
 /* LP5569 Registers */
@@ -72,98 +72,32 @@ struct lp5569_data {
 	struct led_data dev_data;
 };
 
-static int lp5569_led_set_brightness(const struct device *dev, uint32_t led,
-				     uint8_t value)
+static int lp5569_setup(const struct device *dev)
 {
 	const struct lp5569_cfg *config = dev->config;
 	struct lp5569_data *data = dev->data;
-	struct led_data *dev_data = &data->dev_data;
-	
-	if (led > LP5569_LED_OFFSET_MAX) {
-		return -EINVAL;
-	}
-
-	if (value < dev_data->min_brightness ||
-			value > dev_data->max_brightness) {
-		return -EINVAL;
-	}
-	
-	if (i2c_reg_write_byte(data->i2c, config->i2c_addr,
-			       LP5569_LED0_PWM + led, value)) {
-		LOG_ERR("LED reg update failed");
-		return -EIO;
-	}
-
-	return 0;
-}
-
-static inline int lp5569_led_on(const struct device *dev, uint32_t led)
-{
-	const struct lp5569_cfg *config = dev->config;
-	struct lp5569_data *data = dev->data;
-
-	if (led > LP5569_LED_OFFSET_MAX) {
-		return -EINVAL;
-	}
-
-	/* Set LED state to ON */
-	if (i2c_reg_write_byte(data->i2c, config->i2c_addr,
-			       LP5569_LED0_PWM + led, LP5569_DEFAULT_DUTY_CYCLE_ON)) {
-		LOG_ERR("LED reg update failed");
-		return -EIO;
-	}
-
-	return 0;
-}
-
-static inline int lp5569_led_off(const struct device *dev, uint32_t led)
-{
-	const struct lp5569_cfg *config = dev->config;
-	struct lp5569_data *data = dev->data;
-	
-	if (led > LP5569_LED_OFFSET_MAX) {
-		return -EINVAL;
-	}
-
-	/* Set LED state to OFF */
-	if (i2c_reg_write_byte(data->i2c, config->i2c_addr,
-			       LP5569_LED0_PWM + led, 0)) {
-		LOG_ERR("LED reg update failed");
-		return -EIO;
-	}
-	
-	return 0;
-}
-
-static int lp5569_led_init(const struct device *dev)
-{
-	const struct lp5569_cfg *config = dev->config;
-	struct lp5569_data *data = dev->data;
-	struct led_data *dev_data = &data->dev_data;
 	int led_offs;
-	
-	data->i2c = device_get_binding(config->i2c_dev_name);
-	if (data->i2c == NULL) {
-		LOG_DBG("Failed to get I2C device");
-		return -EINVAL;
+	uint8_t reg;
+
+	if (i2c_reg_read_byte(data->i2c, config->i2c_addr, LP5569_CONFIG, &reg)) {
+		printk("Read Enable of LP5569 failed\n");
+		return -EIO;
+	}
+	if (reg & LP5569_CHIP_EN) {
+		/* Device has been enabled already */
+		return 0;
 	}
 
-	/* Hardware specific limits */
-	dev_data->min_period = 0U;
-	dev_data->max_period = 1600U;
-	dev_data->min_brightness = 0U;
-	dev_data->max_brightness = 255U;
-	
 	if (i2c_reg_write_byte(data->i2c, config->i2c_addr,
 			       LP5569_CONFIG, LP5569_CHIP_EN)) {
-		LOG_ERR("Enable LP5569 failed");
+		printk("Enable LP5569 failed\n");
 		return -EIO;
 	}
 	k_sleep(K_MSEC(1));
 
 	/* Set default current for all leds once. LEDs will be controlled via PWM
 	 * within this driver.*/
-	for(led_offs=0; led_offs < LP5569_NUM_LEDS; led_offs++) {
+	for (led_offs=0; led_offs < LP5569_NUM_LEDS; led_offs++) {
 		if (i2c_reg_write_byte(data->i2c, config->i2c_addr,
 				       LP5569_LED0_CURRENT + led_offs,
 					   LP5569_DEFAULT_LED_CURRENT)) {
@@ -184,6 +118,115 @@ static int lp5569_led_init(const struct device *dev)
 	}
 
 	return 0;
+}
+
+static int lp5569_led_set_brightness(const struct device *dev, uint32_t led,
+				     uint8_t value)
+{
+	const struct lp5569_cfg *config = dev->config;
+	struct lp5569_data *data = dev->data;
+	struct led_data *dev_data = &data->dev_data;
+	int err;
+
+	if (led > LP5569_LED_OFFSET_MAX) {
+		return -EINVAL;
+	}
+
+	if (value < dev_data->min_brightness ||
+			value > dev_data->max_brightness) {
+		return -EINVAL;
+	}
+
+	err = lp5569_setup(dev);
+	if (err) {
+		return err;
+	}
+
+	if (i2c_reg_write_byte(data->i2c, config->i2c_addr,
+			       LP5569_LED0_PWM + led, value)) {
+		LOG_ERR("LED reg update failed");
+		return -EIO;
+	}
+
+	return 0;
+}
+
+static inline int lp5569_led_on(const struct device *dev, uint32_t led)
+{
+	const struct lp5569_cfg *config = dev->config;
+	struct lp5569_data *data = dev->data;
+	int err;
+
+	if (led > LP5569_LED_OFFSET_MAX) {
+		return -EINVAL;
+	}
+
+	err = lp5569_setup(dev);
+	if (err) {
+		return err;
+	}
+
+	/* Set LED state to ON */
+	if (i2c_reg_write_byte(data->i2c, config->i2c_addr,
+			       LP5569_LED0_PWM + led, LP5569_DEFAULT_DUTY_CYCLE_ON)) {
+		LOG_ERR("LED reg update failed");
+		return -EIO;
+	}
+
+	return 0;
+}
+
+static inline int lp5569_led_off(const struct device *dev, uint32_t led)
+{
+	const struct lp5569_cfg *config = dev->config;
+	struct lp5569_data *data = dev->data;
+	int err;
+
+	if (led > LP5569_LED_OFFSET_MAX) {
+		return -EINVAL;
+	}
+
+	err = lp5569_setup(dev);
+	if (err) {
+		return err;
+	}
+
+	/* Set LED state to OFF */
+	if (i2c_reg_write_byte(data->i2c, config->i2c_addr,
+			       LP5569_LED0_PWM + led, 0)) {
+		LOG_ERR("LED reg update failed");
+		return -EIO;
+	}
+
+	return 0;
+}
+
+static int lp5569_led_init(const struct device *dev)
+{
+	const struct lp5569_cfg *config = dev->config;
+	struct lp5569_data *data = dev->data;
+	struct led_data *dev_data = &data->dev_data;
+
+	data->i2c = device_get_binding(config->i2c_dev_name);
+	if (data->i2c == NULL) {
+		LOG_DBG("Failed to get I2C device");
+		return -EINVAL;
+	}
+
+	/* Hardware specific limits */
+	dev_data->min_period = 0U;
+	dev_data->max_period = 1600U;
+	dev_data->min_brightness = 0U;
+	dev_data->max_brightness = 255U;
+
+	if (i2c_reg_write_byte(data->i2c, config->i2c_addr,
+			       LP5569_CONFIG, LP5569_CHIP_EN)) {
+		printk("Enable LP5569 test failed\n");
+		return -EIO;
+	}
+	k_sleep(K_MSEC(1));
+
+	return lp5569_setup(dev);
 }
 
 static const struct led_driver_api lp5569_led_api = {
