@@ -80,7 +80,7 @@ static int lp5569_setup(const struct device *dev)
 	uint8_t reg;
 
 	if (i2c_reg_read_byte(data->i2c, config->i2c_addr, LP5569_CONFIG, &reg)) {
-		printk("Read Enable of LP5569 failed\n");
+		LOG_ERR("Read Enable of LP5569 failed");
 		return -EIO;
 	}
 	if (reg & LP5569_CHIP_EN) {
@@ -90,7 +90,7 @@ static int lp5569_setup(const struct device *dev)
 
 	if (i2c_reg_write_byte(data->i2c, config->i2c_addr,
 			       LP5569_CONFIG, LP5569_CHIP_EN)) {
-		printk("Enable LP5569 failed\n");
+		LOG_ERR("Enable LP5569 failed");
 		return -EIO;
 	}
 	k_sleep(K_MSEC(1));
@@ -221,7 +221,7 @@ static int lp5569_led_init(const struct device *dev)
 
 	if (i2c_reg_write_byte(data->i2c, config->i2c_addr,
 			       LP5569_CONFIG, LP5569_CHIP_EN)) {
-		printk("Enable LP5569 test failed\n");
+		LOG_ERR("Enable LP5569 test failed");
 		return -EIO;
 	}
 	k_sleep(K_MSEC(1));
