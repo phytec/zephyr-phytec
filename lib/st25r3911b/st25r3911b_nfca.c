@@ -17,7 +17,7 @@
 #include "st25r3911b_spi.h"
 #include "st25r3911b_interrupt.h"
 
-LOG_MODULE_DECLARE(st25r3911b);
+LOG_MODULE_DECLARE(st25r3911b, CONFIG_ST25R3911B_LIB_LOG_LEVEL);
 
 #define NFCA_MIN_LISTEN_FDT 1172
 
@@ -1127,11 +1127,11 @@ int st25r3911b_nfca_init(struct k_poll_event *events, uint8_t cnt,
 	k_work_init_delayable(&timeout_work, timeout_handler);
 
 	/* Turn on NFC-A led */
-	err = st25r3911b_technology_led_set(ST25R3911B_NFCA_LED, true);
-	if (err) {
-		LOG_ERR("NFCA led enabling failed");
-		return err;
-	}
+	//err = st25r3911b_technology_led_set(ST25R3911B_NFCA_LED, true);
+	//if (err) {
+	//	LOG_ERR("NFCA led enabling failed");
+	//	return err;
+	//}
 
 	/* NFC-A events initialization */
 	nfca_events = events;

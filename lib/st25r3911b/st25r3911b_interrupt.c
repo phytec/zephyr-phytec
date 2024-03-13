@@ -16,7 +16,7 @@
 #include "st25r3911b_interrupt.h"
 #include "st25r3911b_dt.h"
 
-LOG_MODULE_DECLARE(st25r3911b);
+LOG_MODULE_DECLARE(st25r3911b, CONFIG_ST25R3911B_LIB_LOG_LEVEL);
 
 #define IRQ_REG_CNT 3
 #define IRQ_REG_READ_MAX_CNT 5

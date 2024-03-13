@@ -17,7 +17,7 @@
 #include "st25r3911b_common.h"
 #include "st25r3911b_dt.h"
 
-LOG_MODULE_DECLARE(st25r3911b);
+LOG_MODULE_DECLARE(st25r3911b, CONFIG_ST25R3911B_LIB_LOG_LEVEL);
 
 #define T_OSC_STABLE 10
 #define T_POWER_SUPP_MEAS 100
@@ -396,8 +396,7 @@ int st25r3911b_init(void)
 	/* Set power supply 5V or 3V3 */
 	err = st25r3911b_reg_modify(ST25R3911B_REG_IO_CONF2,
 				    ST25R3911B_REG_IO_CONF2_SUP3V,
-				    (mV < POWER_SUPP_3V3_MAX_LVL) ?
-				    ST25R3911B_REG_IO_CONF2_SUP3V : 0);
+				    ST25R3911B_REG_IO_CONF2_SUP3V);
 	if (err) {
 		LOG_ERR("Power supply voltage level set failed");
 		return err;
