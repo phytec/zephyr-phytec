@@ -10,3 +10,11 @@ config TI_HDC
 	select I2C
 	help
 	  Enable driver for TI temperature and humidity sensors.
+
+config TI_HDC_INIT_PRIORITY
+	int "Initialization priority"
+	default 91
+	help
+	  Initialization priority for the TI HDC driver. This has to have a
+	  higher value than other sensors because the TI_HDC device needs
+	  10-15 ms to power up.

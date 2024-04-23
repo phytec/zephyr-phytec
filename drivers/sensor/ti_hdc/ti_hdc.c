@@ -177,6 +177,6 @@ static int ti_hdc_init(const struct device *dev)
 											\
 	SENSOR_DEVICE_DT_INST_DEFINE(inst, ti_hdc_init, NULL,				\
 			      &ti_hdc_data_##inst, &ti_hdc_config_##inst, POST_KERNEL,	\
-			      CONFIG_SENSOR_INIT_PRIORITY, &ti_hdc_driver_api);		\
+			      CONFIG_TI_HDC_INIT_PRIORITY, &ti_hdc_driver_api);		\
 
 DT_INST_FOREACH_STATUS_OKAY(TI_HDC_DEFINE)
