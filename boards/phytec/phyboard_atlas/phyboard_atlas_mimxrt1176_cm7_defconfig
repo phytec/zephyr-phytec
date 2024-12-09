@@ -1,0 +1,9 @@
+#
+# Copyright 2024, PHYTEC America, LLC
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+CONFIG_CONSOLE=y
+CONFIG_UART_CONSOLE=y
+CONFIG_SERIAL=y

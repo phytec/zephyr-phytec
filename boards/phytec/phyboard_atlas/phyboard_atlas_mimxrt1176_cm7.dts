@@ -1,0 +1,103 @@
+/*
+ * Copyright 2024, PHYTEC America, LLC
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/dts-v1/;
+
+#include <phytec/phycore_rt1170_mimxrt1176_cm7.dtsi>
+#include "phyboard_atlas.dtsi"
+
+/ {
+	model = "PHYTEC phyBOARD-Atlas i.MX RT1170 CM7";
+	compatible = "phytec,phyboard_atlas";
+
+	chosen {
+		zephyr,console = &lpuart1;
+		zephyr,shell-uart = &lpuart1;
+		zephyr,canbus = &flexcan3;
+	};
+};
+
+&user_button {
+	status = "okay";
+};
+
+&board_green_led {
+	status = "okay";
+};
+
+&board_red_led {
+	status = "okay";
+};
+
+&flexcan3 {
+	status = "okay";
+	phys = <&transceiver0>;
+};
+
+&lpspi1 {
+	dmas = <&edma0 0 36>, <&edma0 1 37>;
+	dma-names = "rx", "tx";
+	status = "okay";
+};
+
+&edma0 {
+	status = "okay";
+};
+
+&lpuart1 {
+	status = "okay";
+	current-speed = <115200>;
+};
+
+&lpuart5 {
+	status = "okay";
+	current-speed = <115200>;
+};
+
+&lpuart6 {
+	status = "okay";
+	current-speed = <115200>;
+};
+
+&lpuart8 {
+	status = "okay";
+	current-speed = <115200>;
+};
+
+zephyr_udc0: &usb1 {
+	status = "okay";
+	phy_handle = <&usbphy1>;
+};
+
+&usbphy1 {
+	status = "okay";
+	tx-d-cal = <7>;
+	tx-cal-45-dp-ohms = <6>;
+	tx-cal-45-dm-ohms = <6>;
+};
+
+zephyr_udc1: &usb2 {
+	status = "okay";
+	phy_handle = <&usbphy2>;
+};
+
+&usbphy2 {
+	status = "okay";
+	tx-d-cal = <7>;
+	tx-cal-45-dp-ohms = <6>;
+	tx-cal-45-dm-ohms = <6>;
+};
+
+&usdhc1 {
+	status = "okay";
+	detect-dat3;
+	sdmmc {
+		compatible = "zephyr,sdmmc-disk";
+		disk-name = "SD";
+		status = "okay";
+	};
+	no-1-8-v;
+};
