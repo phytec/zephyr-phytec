@@ -80,7 +80,7 @@
 	status = "okay";
 	pinctrl-0 = <&pinmux_enet_mdio>;
 	pinctrl-names = "default";
-	phy: phy@0 {
+	phy: phy@1 {
 		compatible = "microchip,ksz8081";
 		reg = <1>;
 		status = "okay";
