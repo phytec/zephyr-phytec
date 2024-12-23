@@ -1,0 +1,14 @@
+/*
+ * Copyright 2024, PHYTEC America, LLC
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+&zephyr_mipi_dsi {
+	/* Raise the DSI clock frequency */
+	phy-clock = <792000000>;
+};
+
+&zephyr_lcdif {
+	/delete-node/ backlight-gpios;
+};
