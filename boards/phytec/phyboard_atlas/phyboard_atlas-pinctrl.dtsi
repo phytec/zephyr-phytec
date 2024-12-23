@@ -50,6 +50,22 @@
 	pinmux_ptp: pinmux_ptp {
 	};
 
+	pinmux_lcdif: pinmux_lcdif {
+		group0 {
+			pinmux = <&iomuxc_gpio_ad_30_gpio9_io29>,
+				<&iomuxc_gpio_ad_31_gpio9_io30>;
+			drive-strength = "high";
+			bias-pull-down;
+			slew-rate = "fast";
+		};
+		group1 {
+			pinmux = <&iomuxc_gpio_disp_b2_15_gpio11_io16>;
+			drive-strength = "high";
+			bias-pull-up;
+			slew-rate = "fast";
+		};
+	};
+
 	pinmux_lpi2c1: pinmux_lpi2c1 {
 		group0 {
 			pinmux = <&iomuxc_gpio_ad_08_lpi2c1_scl>,
