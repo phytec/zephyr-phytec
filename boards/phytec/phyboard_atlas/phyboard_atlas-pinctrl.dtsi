@@ -61,6 +61,17 @@
 		};
 	};
 
+	pinmux_lpi2c5: pinmux_lpi2c5 {
+		group0 {
+			pinmux = <&iomuxc_lpsr_gpio_lpsr_08_lpi2c5_sda>,
+				<&iomuxc_lpsr_gpio_lpsr_09_lpi2c5_scl>;
+			drive-strength = "normal";
+			drive-open-drain;
+			slew-rate = "fast";
+			input-enable;
+		};
+	};
+
 	pinmux_lpspi1: pinmux_lpspi1 {
 		group0 {
 			pinmux = <&iomuxc_gpio_ad_29_lpspi1_pcs0>,

@@ -9,6 +9,7 @@
 
 / {
 	aliases {
+		accel0 = &icm40627;
 		eeprom-0 = &eeprom0;
 		led0 = &som_green_led;
 		led1 = &som_red_led;
@@ -101,6 +102,24 @@
 &lpi2c1 {
 	pinctrl-0 =<&pinmux_lpi2c1>;
 	pinctrl-names = "default";
+};
+
+&lpi2c5 {
+	pinctrl-0 =<&pinmux_lpi2c5>;
+	pinctrl-names = "default";
+	status = "okay";
+
+	icm40627: icm40627@69 {
+		compatible = "invensense,icm40627";
+		reg = <0x69>;
+		status = "okay";
+		accel-hz = <1000>;
+		accel-fs = <16>;
+		gyro-hz = <1000>;
+		gyro-fs = <2000>;
+		int-gpios = <&gpio3 25 GPIO_ACTIVE_HIGH>,
+			<&gpio3 26 GPIO_ACTIVE_HIGH>;
+	};
 };
 
 &lpspi1 {
