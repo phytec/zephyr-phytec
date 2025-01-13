@@ -26,6 +26,18 @@
 			label = "Red LED D7";
 		};
 	};
+
+	soc {
+		snvs: snvs@40c90000 {
+			compatible = "nxp,imx-snvs";
+			reg = <0x40c90000 0x4000>;
+
+			snvs_rtc: rtc {
+				compatible = "nxp,imx-snvs-rtc";
+				interrupts = <66 0>;
+			};
+		};
+	};
 };
 
 &lpi2c2 {
