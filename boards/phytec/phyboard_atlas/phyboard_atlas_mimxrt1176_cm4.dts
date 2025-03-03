@@ -14,8 +14,8 @@
 	compatible = "phytec,phyboard_atlas";
 
 	chosen {
-		zephyr,console = &lpuart1;
-		zephyr,shell-uart = &lpuart1;
+		zephyr,console = &lpuart6;
+		zephyr,shell-uart = &lpuart6;
 	};
 };
 
@@ -35,7 +35,7 @@
 	status = "okay";
 };
 
-&lpuart1 {
+&lpuart6 {
 	status = "okay";
 	current-speed = <115200>;
 };
