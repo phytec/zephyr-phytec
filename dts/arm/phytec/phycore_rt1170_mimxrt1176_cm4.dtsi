@@ -22,13 +22,13 @@
 		 */
 		zephyr,sram = &sram1;
 		zephyr,flash-controller = &mx25u12832f;
-		zephyr,flash = &sram0;
+		zephyr,flash = &ocram;
 		nxp,m4-partition = &slot1_partition;
 		zephyr,ipc = &mailbox_b;
 	};
 };
 
-&lpuart1 {
+&lpuart6 {
 	status = "okay";
 	current-speed = <115200>;
 };
