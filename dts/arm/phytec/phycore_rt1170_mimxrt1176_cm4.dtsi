@@ -26,6 +26,16 @@
 		nxp,m4-partition = &slot1_partition;
 		zephyr,ipc = &mailbox_b;
 	};
+
+	zephyr,user {
+		dac = <&dac>;
+		dac-channel-id = <0>;
+		dac-resolution = <12>;
+	};
+};
+
+&dac {
+	status = "okay";
 };
 
 &lpuart1 {
