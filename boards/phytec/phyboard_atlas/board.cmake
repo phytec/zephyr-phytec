@@ -1,5 +1,5 @@
 if(CONFIG_SOC_MIMXRT1176_CM7 OR CONFIG_SECOND_CORE_MCUX)
- board_runner_args(pyocd "--target=mimxrt1170_cm7")
+ board_runner_args(pyocd "--target=mimxrt1170_cm7" "--frequency=4000000")
  board_runner_args(jlink "--device=MIMXRT1176xxxA_M7" "--reset-after-load")
 
  board_runner_args(linkserver  "--device=MIMXRT1176xxxxx:MIMXRT1170-EVK")
