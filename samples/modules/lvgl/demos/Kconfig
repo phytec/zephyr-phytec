@@ -56,6 +56,12 @@ config LV_Z_DEMO_SCROLL
 	help
 	  Build scroll demo application.
 
+config LV_Z_DEMO_EBIKE
+	bool "EBIKE demo"
+	select LV_USE_DEMO_EBIKE
+	help
+	  Build scroll demo application.
+
 config LV_Z_DEMO_MULTILANG
 	bool "LVGL multilang demo"
 	select LV_USE_DEMO_MULTILANG
