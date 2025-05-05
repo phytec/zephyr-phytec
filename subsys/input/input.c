@@ -20,6 +20,7 @@ K_MSGQ_DEFINE(input_msgq, sizeof(struct input_event),
 
 static void input_process(struct input_event *evt)
 {
+	LOG_DBG("input_process");
 	STRUCT_SECTION_FOREACH(input_callback, callback) {
 		if (callback->dev == NULL || callback->dev == evt->dev) {
 			callback->callback(evt, callback->user_data);
@@ -48,6 +49,9 @@ int input_report(const struct device *dev,
 		.code = code,
 		.value = value,
 	};
+
+	//LOG_DBG("report: dev %p, type %d, code %d, value %d, sync %d",
+	//	dev, type, code, value, sync);
 
 #ifdef CONFIG_INPUT_MODE_THREAD
 	int ret;

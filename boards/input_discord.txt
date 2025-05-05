@@ -1,0 +1,18 @@
+Hi all, I am trying to get the LVGL display demos (including touch) running on
+an imxRT1176. I connected a RK055HDMIPI4MA0 display kit and activated the
+RK055HDMIPI4MA0 shield in Zephyr. The display is working fine and I can also
+see touch events with the input_dump sample. But I run into issues when testing
+demos that use display and touch simultaneously.
+
+The draw_touch_events sample behaves in the following way:
+- boots normally
+- crashes when I test the touch screen during the approx 1st minute (kernel
+  panic in input thread at first touch event).
+- CPU utilization is very high during that time (tested with thread analyser)
+  and debug logs appear slowly
+
+The LVGL display demos boot normally, but touch events are not generated at all
+(no events with INPUT_EVENT_DUMP activated). CPU utilization seems normal.
+Touch events work fine with the same sample on native_sim.
+
+Any ideas what's going on here and where I could start searching?

@@ -180,3 +180,7 @@
 	pinctrl-1 = <&pinmux_usdhc1_dat3_nopull>;
 	pinctrl-names = "default", "nopull";
 };
+
+&pxp {
+	status = "okay";
+};

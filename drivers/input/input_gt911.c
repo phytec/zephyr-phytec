@@ -127,6 +127,8 @@ static int gt911_process(const struct device *dev)
 		return 0;
 	}
 
+	//LOG_DBG("Recognized touch event");
+
 	/*
 	 * Note- since we program the max number of touch inputs during init,
 	 * the controller won't report more than the maximum number of touch
@@ -247,6 +249,8 @@ static int gt911_init(const struct device *dev)
 		return -ENODEV;
 	}
 
+	LOG_DBG("GT911 device found at address 0x%02X", config->bus.addr);
+
 	data->dev = dev;
 	data->actual_address = config->bus.addr;
 
@@ -312,6 +316,7 @@ static int gt911_init(const struct device *dev)
 		LOG_ERR("Could not configure interrupt GPIO interrupt.");
 		return r;
 	}
+	LOG_DBG("Configured interrupt GPIO pin");
 
 	gpio_init_callback(&data->int_gpio_cb, gt911_isr_handler, BIT(config->int_gpio.pin));
 #else
