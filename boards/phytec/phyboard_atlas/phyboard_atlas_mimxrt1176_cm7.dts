@@ -30,7 +30,7 @@
 		gpio-map =	<0  0 &gpio9 29 0>,	/* Pin 1, LEDK */
 				<21 0 &gpio9 30  0>,	/* Pin 21, RESET */
 				<28 0 &gpio9 0  0>,	/* Pin 28, CTP_RST */
-				<29 0 &gpio8 31 0>,	/* Pin 29, CTP_INT */
+				<29 0 &gpio2 31 0>,	/* Pin 29, CTP_INT */
 				<32 0 &gpio11 16 0>,	/* Pin 32, PWR_EN */
 				<34 0 &gpio9 29 0>;	/* Pin 34, BL_PWM */
 	};
