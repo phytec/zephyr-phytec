@@ -336,6 +336,70 @@ static int cmd_gpio_conf(const struct shell *sh, size_t argc, char **argv)
 	return 0;
 }
 
+static struct gpio_callback gpio_event_cb_data;
+static uint32_t event_triggered;
+
+void gpio_event(const struct device *dev, struct gpio_callback *cb,
+		uint32_t pins)
+{
+	ARG_UNUSED(dev);
+	ARG_UNUSED(cb);
+	ARG_UNUSED(pins);
+
+	event_triggered = 1;
+}
+
+static int cmd_gpio_event(const struct shell *sh, size_t argc, char **argv,
+			  void *data)
+{
+	struct sh_gpio gpio;
+	int ret = 0;
+	k_timepoint_t end;
+	uint64_t seconds;
+
+	ret = get_sh_gpio(sh, argv, &gpio);
+	if (ret != 0) {
+		shell_help(sh);
+		return SHELL_CMD_HELP_PRINTED;
+	}
+
+	seconds = shell_strtoul(argv[3], 10, &ret);
+	if (ret != 0) {
+		shell_help(sh);
+		return SHELL_CMD_HELP_PRINTED;
+	}
+	if (seconds < 1) {
+		return -EINVAL;
+	}
+	shell_info(sh, "wait for a GPIO interrupt on (%s - pin %i) for up to %lli seconds.",
+		   gpio.dev->name, gpio.pin, seconds);
+
+	ret = gpio_pin_interrupt_configure(gpio.dev, gpio.pin,
+					   GPIO_INT_EDGE_TO_ACTIVE);
+	if (ret != 0) {
+		shell_error(sh, "failed to configure interrupt: %d", ret);
+		return ret;
+	}
+
+	event_triggered = 0;
+
+	gpio_init_callback(&gpio_event_cb_data, gpio_event, BIT(gpio.pin));
+	gpio_add_callback(gpio.dev, &gpio_event_cb_data);
+
+	end = sys_timepoint_calc(K_SECONDS(seconds));
+	while (!sys_timepoint_expired(end) && !event_triggered) {
+		k_msleep(100);
+	}
+
+	gpio_remove_callback(gpio.dev, &gpio_event_cb_data);
+	if (event_triggered) {
+		shell_print(sh, "GPIO event detected");
+		return 0;
+	}
+
+	return -ETIMEDOUT;
+}
+
 static int cmd_gpio_get(const struct shell *sh, size_t argc, char **argv)
 {
 	struct sh_gpio gpio;
@@ -660,6 +724,8 @@ SHELL_STATIC_SUBCMD_SET_CREATE(
 		cmd_gpio_conf, 4, 1),
 	SHELL_CMD_ARG(get, &sub_gpio_dev, SHELL_HELP("Get GPIO pin value", "<device> <pin>"),
 		      cmd_gpio_get, 3, 0),
+	SHELL_CMD_ARG(event, &sub_gpio_dev, SHELL_HELP("Wait for GPIO pin event (interrupt)", "<device> <pin>"),
+		      cmd_gpio_event, 4, 0),
 	SHELL_CMD_ARG(set, &sub_gpio_dev,
 		      SHELL_HELP("Set GPIO pin value", "<device> <pin> <level 0|1>"), cmd_gpio_set,
 		      4, 0),
