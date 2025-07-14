@@ -142,6 +142,7 @@ zephyr_lcdif: &lcdif {};
 
 zephyr_mipi_dsi: &mipi_dsi {
 	dphy-ref-frequency = <24000000>;
+	phy-clock = <792000000>;
 };
 
 nxp_cam_i2c: &lpi2c2 {};
