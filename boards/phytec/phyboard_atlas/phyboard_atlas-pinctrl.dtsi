@@ -161,6 +161,30 @@
 		};
 	};
 
+	pinmux_lpuart2: pinmux_lpuart2 {
+		group0 {
+			pinmux = <&iomuxc_gpio_disp_b2_11_lpuart2_rx>,
+				<&iomuxc_gpio_disp_b2_10_lpuart2_tx>;
+			drive-strength = "high";
+			slew-rate = "fast";
+		};
+	};
+
+	pinmux_lpuart2_sleep: pinmux_lpuart2_sleep {
+		group0 {
+			pinmux = <&iomuxc_gpio_disp_b2_11_gpio_mux5_io12>;
+			drive-strength = "high";
+			bias-pull-up;
+			slew-rate = "fast";
+		};
+
+		group1 {
+			pinmux = <&iomuxc_gpio_disp_b2_10_lpuart2_tx>;
+			drive-strength = "high";
+			slew-rate = "fast";
+		};
+	};
+
 	pinmux_lpuart5: pinmux_lpuart5 {
 		group0 {
 			pinmux = <&iomuxc_gpio_ad_29_lpuart5_rx>,
