@@ -65,7 +65,7 @@
 &lpspi1 {
 	dmas = <&edma0 0 36>, <&edma0 1 37>;
 	dma-names = "rx", "tx";
-	status = "okay";
+	status = "disabled"; /* LPSPI1 conflicts with LPUART5 */
 };
 
 &lpspi5 {
