@@ -82,6 +82,43 @@ static int cmd_uart_read(const struct shell *sh, size_t argc, char **argv)
 	return 0;
 }
 
+static int cmd_uart_loopback(const struct shell *sh, size_t argc, char **argv)
+{
+	char *s_dev_name = argv[1];
+	const struct device *dev = shell_device_get_binding(s_dev_name);
+	int ret = 0;
+	char chr;
+
+	if (!dev || !device_is_uart(dev)) {
+		shell_error(sh, "UART: Device driver %s not found.", s_dev_name);
+		return -ENODEV;
+	}
+
+	char *buf = argv[2];
+	int msg_len = strlen(buf);
+
+	for (int i = 0; i < msg_len; i++) {
+		uart_poll_out(dev, buf[i]);
+		k_msleep(10);
+		ret = uart_poll_in(dev, &chr);
+		if (ret != 0 && ret != -1) {
+			shell_error(sh, "Failed to read from UART (%d)", ret);
+			return ret;
+		}
+		ret = uart_err_check(dev);
+		if (ret && ret != -ENOSYS) {
+			shell_error(sh, "Failed to read from UART (%d)", ret);
+			return ret;
+		}
+		if (chr != buf[i]) {
+			shell_error(sh, "Received value (%c) doesn't match %c", chr, buf[i]);
+			return -1;
+		}
+	}
+
+	return 0;
+}
+
 static int cmd_uart_baudrate(const struct shell *sh, size_t argc, char **argv)
 {
 	char *s_dev_name = argv[1];
@@ -217,6 +254,10 @@ SHELL_STATIC_SUBCMD_SET_CREATE(sub_uart_cmds,
 		      SHELL_HELP("Read data from the UART device",
 				 "<device> <duration in secs>"),
 		      cmd_uart_read, 3, 0),
+	SHELL_CMD_ARG(loopback, &dsub_device_name,
+		      SHELL_HELP("Loopbacks data",
+				 "<device> <data>"),
+		      cmd_uart_loopback, 3, 0),
 	SHELL_CMD_ARG(baudrate, &dsub_device_name,
 		      SHELL_HELP("Configure the UART device baudrate",
 				 "<device> <baudrate>"),
