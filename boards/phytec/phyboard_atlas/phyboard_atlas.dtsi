@@ -176,9 +176,10 @@
 };
 
 &lpuart8 {
-	pinctrl-0 = <&pinmux_lpuart8>;
+	pinctrl-0 = <&pinmux_lpuart8_flowcontrol>;
 	pinctrl-1 = <&pinmux_lpuart8_sleep>;
 	pinctrl-names = "default", "sleep";
+	hw-flow-control;
 };
 
 &pxp {
