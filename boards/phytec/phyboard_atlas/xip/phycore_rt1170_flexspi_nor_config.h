@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020, 2022 NXP
+ * Copyright 2026 PHYTEC America, LLC
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -29,7 +29,9 @@
 #define CMD_LUT_SEQ_IDX_READ        0
 #define CMD_LUT_SEQ_IDX_READSTATUS  1
 #define CMD_LUT_SEQ_IDX_WRITEENABLE 3
+#define CMD_LUT_SEQ_IDX_ERASESECTOR	5
 #define CMD_LUT_SEQ_IDX_WRITE       9
+#define CMD_LUT_SEQ_IDX_CHIPERASE	11
 
 #define CMD_SDR        0x01
 #define CMD_DDR        0x21

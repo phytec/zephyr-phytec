@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 NXP
+ * Copyright 2026 PHYTEC America, LLC
  * All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
@@ -10,8 +10,8 @@
 #if defined(CONFIG_NXP_IMXRT_BOOT_HEADER) && defined(CONFIG_BOOT_FLEXSPI_NOR)
 __attribute__((section(".boot_hdr.conf"), used))
 
-#define FLASH_DUMMY_CYCLES 0x09
-#define FLASH_DUMMY_VALUE  0x09
+#define FLASH_DUMMY_CYCLES 0x06
+#define FLASH_DUMMY_VALUE  0x06
 
 const flexspi_nor_config_t qspi_flash_config = {
 	.mem_config = {
@@ -25,7 +25,7 @@ const flexspi_nor_config_t qspi_flash_config = {
 		.controller_misc_option = 0x10,
 		.device_type = FLEXSPI_DEVICE_TYPE_SERIAL_NOR,
 		.sflash_pad_type = SERIAL_FLASH_4_PADS,
-		.serial_clk_freq = FLEXSPI_SERIAL_CLK_133MHZ,
+		.serial_clk_freq = FLEXSPI_SERIAL_CLK_100MHZ,
 		.sflash_a1_size = 16u * 1024u * 1024u,
 		/* Enable flash configuration feature */
 		.config_cmd_enable = 1u,
@@ -39,44 +39,34 @@ const flexspi_nor_config_t qspi_flash_config = {
 		/* Prepare setting value for Read Register in flash */
 		.config_cmd_args[0] = (FLASH_DUMMY_VALUE << 3),
 		.lookup_table = {
-			/* Read LUTs */
-			[0] = FLEXSPI_LUT_SEQ(CMD_SDR, FLEXSPI_1PAD,
+			/* Fast read quad mode - SDR */
+			[4 * CMD_LUT_SEQ_IDX_READ + 0] = FLEXSPI_LUT_SEQ(CMD_SDR, FLEXSPI_1PAD,
 				0xEB, RADDR_SDR, FLEXSPI_4PAD, 0x18),
-			[1] = FLEXSPI_LUT_SEQ(DUMMY_SDR, FLEXSPI_4PAD,
+			[4 * CMD_LUT_SEQ_IDX_READ + 1] = FLEXSPI_LUT_SEQ(DUMMY_SDR, FLEXSPI_4PAD,
 				FLASH_DUMMY_CYCLES, READ_SDR, FLEXSPI_4PAD,
 				0x04),
 
 			/* Read Status LUTs */
-			[4 * 1 + 0] = FLEXSPI_LUT_SEQ(CMD_SDR, FLEXSPI_1PAD,
-				0x05, READ_SDR, FLEXSPI_1PAD, 0x04),
+			[4 * CMD_LUT_SEQ_IDX_READSTATUS + 0] = FLEXSPI_LUT_SEQ(CMD_SDR,
+				FLEXSPI_1PAD, 0x05, READ_SDR, FLEXSPI_1PAD, 0x04),
 
 			/* Write Enable LUTs */
-			[4 * 3 + 0] = FLEXSPI_LUT_SEQ(CMD_SDR, FLEXSPI_1PAD,
-				0x06, STOP, FLEXSPI_1PAD, 0x0),
+			[4 * CMD_LUT_SEQ_IDX_WRITEENABLE + 0] = FLEXSPI_LUT_SEQ(CMD_SDR,
+				FLEXSPI_1PAD, 0x06, STOP, FLEXSPI_1PAD, 0x0),
 
 			/* Erase Sector LUTs */
-			[4 * 5 + 0] = FLEXSPI_LUT_SEQ(CMD_SDR, FLEXSPI_1PAD,
-				0x20, RADDR_SDR, FLEXSPI_1PAD, 0x18),
+			[4 * CMD_LUT_SEQ_IDX_ERASESECTOR + 0] = FLEXSPI_LUT_SEQ(CMD_SDR,
+				FLEXSPI_1PAD, 0x20, RADDR_SDR, FLEXSPI_1PAD, 0x18),
 
-			/* Erase Block LUTs */
-			[4 * 8 + 0] = FLEXSPI_LUT_SEQ(CMD_SDR, FLEXSPI_1PAD,
-				0xD8, RADDR_SDR, FLEXSPI_1PAD, 0x18),
-
-			/* Pape Program LUTs */
-			[4 * 9 + 0] = FLEXSPI_LUT_SEQ(CMD_SDR, FLEXSPI_1PAD,
+			/* Page Program LUTs */
+			[4 * CMD_LUT_SEQ_IDX_WRITE + 0] = FLEXSPI_LUT_SEQ(CMD_SDR, FLEXSPI_1PAD,
 				0x02, RADDR_SDR, FLEXSPI_1PAD, 0x18),
-			[4 * 9 + 1] = FLEXSPI_LUT_SEQ(WRITE_SDR, FLEXSPI_1PAD,
+			[4 * CMD_LUT_SEQ_IDX_WRITE + 1] = FLEXSPI_LUT_SEQ(WRITE_SDR, FLEXSPI_1PAD,
 				0x04, STOP, FLEXSPI_1PAD, 0x0),
 
 			/* Erase Chip LUTs */
-			[4 * 11 + 0] = FLEXSPI_LUT_SEQ(CMD_SDR, FLEXSPI_1PAD,
+			[4 * CMD_LUT_SEQ_IDX_CHIPERASE + 0] = FLEXSPI_LUT_SEQ(CMD_SDR, FLEXSPI_1PAD,
 				0x60, STOP, FLEXSPI_1PAD, 0x0),
-
-			/* Set Read Register LUTs */
-			[4 * 12 + 0] = FLEXSPI_LUT_SEQ(CMD_SDR, FLEXSPI_1PAD,
-				0xC0, WRITE_SDR, FLEXSPI_1PAD, 0x01),
-			[4 * 12 + 1] = FLEXSPI_LUT_SEQ(STOP, FLEXSPI_1PAD,
-				0x00, 0, 0, 0),
 		},
 	},
 	.page_size = 256u,
