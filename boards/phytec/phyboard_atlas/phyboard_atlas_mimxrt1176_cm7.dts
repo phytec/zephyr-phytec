@@ -35,14 +35,7 @@
 			   <34 0 &gpio9 29 0>;  /* Pin 34, BL_PWM */
 	};
 
-	nxp_cam_connector: cam-connector {
-		compatible = "nxp,cam-44pins-connector";
-		#gpio-cells = <2>;
-		gpio-map-mask = <0xffffffff 0xffffffc0>;
-		gpio-map-pass-thru = <0 0x3f>;
-		gpio-map = <9 0 &gpio11 15 0>, /* Pin 9, RESETB */
-			   <17 0 &gpio9 25 0>; /* Pin 17, PWDN */
-	};
+	nxp_cam_connector: cam-connector {};
 };
 
 &user_button {
