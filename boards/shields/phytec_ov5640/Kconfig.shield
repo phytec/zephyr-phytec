@@ -1,0 +1,5 @@
+# Copyright 2024 NXP
+# SPDX-License-Identifier: Apache-2.0
+
+config SHIELD_PHYTEC_OV5640
+	def_bool $(shields_list_contains,phytec_ov5640)

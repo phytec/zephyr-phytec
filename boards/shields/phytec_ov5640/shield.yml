@@ -1,0 +1,6 @@
+shield:
+  name: phytec_ov5640
+  full_name: PHYTEC OV5640 Camera Module
+  vendor: phytec
+  supported_features:
+    - video
