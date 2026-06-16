@@ -138,9 +138,9 @@
 		clock-names = "mclk";
 	};
 
-	icm40627: icm40627@6b {
+	icm40627: icm40627@69 {
 		compatible = "invensense,icm40627";
-		reg = <0x6b>;
+		reg = <0x69>;
 		status = "okay";
 		accel-hz = <1000>;
 		accel-fs = <16>;

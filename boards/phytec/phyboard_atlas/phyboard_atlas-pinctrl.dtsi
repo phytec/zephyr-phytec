@@ -6,21 +6,7 @@
 #include <phytec/phycore_rt1170-pinctrl.dtsi>
 
 &pinctrl {
-	pinmux_csi: pinmux_csi {
-		group0 {
-			pinmux = <&iomuxc_gpio_disp_b2_14_gpio11_io15>;
-			drive-strength = "high";
-			bias-pull-down;
-			slew-rate = "fast";
-		};
-
-		group1 {
-			pinmux = <&iomuxc_gpio_ad_26_gpio9_io25>;
-			drive-strength = "high";
-			bias-pull-up;
-			slew-rate = "fast";
-		};
-	};
+	pinmux_csi: pinmux_csi {};
 
 	pinmux_enet: pinmux_enet {
 		group0 {
