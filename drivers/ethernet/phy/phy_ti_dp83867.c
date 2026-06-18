@@ -682,8 +682,6 @@ static int phy_ti_dp83867_init(const struct device *dev)
 
 	ret = gpio_pin_interrupt_configure_dt(&config->interrupt_gpio, GPIO_INT_EDGE_TO_ACTIVE);
 
-	return ret;
-
 skip_int_gpio:
 #endif /* DT_ANY_INST_HAS_PROP_STATUS_OKAY(int_gpios) */
 	phy_ti_dp83867_monitor_work_handler(&data->phy_monitor_work.work);
