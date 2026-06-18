@@ -55,7 +55,16 @@
 			bias-pull-down;
 			slew-rate = "slow";
 		};
+
+		group2 {
+			pinmux = <&iomuxc_gpio_disp_b2_14_gpio_mux5_io15>; /* nINT_ETHPHY */
+			drive-strength = "high";
+			bias-pull-down;
+			slew-rate = "fast";
+		};
 	};
+
+	pinmux_enet1g_ptp: pinmux_enet1g_ptp {};
 
 	pinmux_flexspi1: pinmux_flexspi1 {
 		group0 {
