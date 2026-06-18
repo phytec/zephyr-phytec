@@ -96,11 +96,6 @@
 	status = "okay";
 };
 
-&csi {
-	pinctrl-0 = <&pinmux_csi>;
-	pinctrl-names = "default";
-};
-
 &flexcan3 {
 	pinctrl-0 = <&pinmux_flexcan3>;
 	pinctrl-names = "default";
