@@ -6,6 +6,8 @@
 #include <phytec/phycore_rt1170-pinctrl.dtsi>
 
 &pinctrl {
+	pinmux_csi: pinmux_csi {};
+
 	pinmux_enet: pinmux_enet {
 		group0 {
 			pinmux = <&iomuxc_gpio_disp_b2_08_enet_rx_en>,
