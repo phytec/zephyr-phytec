@@ -70,6 +70,11 @@
 	};
 };
 
+&csi {
+	pinctrl-0 = <&pinmux_csi>;
+	pinctrl-names = "default";
+};
+
 &enet_mac {
 	status = "okay";
 	pinctrl-0 = <&pinmux_enet>;
