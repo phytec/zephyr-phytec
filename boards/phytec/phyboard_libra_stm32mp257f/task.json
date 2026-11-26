@@ -1,0 +1,33 @@
+json
+    {
+    "label": "West Debugserver",
+    "type": "shell",
+    "command": "west",
+    "args": [
+        "debugserver",
+        "-r",
+        "openocd"
+    ],
+    "problemMatcher": {
+            "pattern": {
+                "regexp":
+                "^(Info |Warn |Error):(.*)$",
+                "severity": 1,
+                "message": 2
+            },
+        "background": {
+            "activeOnStart": true,
+            "beginsPattern": "^Open On-Chip Debugger.*",
+            "endsPattern": ".*watchpoints.*",
+        },
+    },
+    "isBackground": true,
+    "runOptions": {
+        "instanceLimit": 1,
+        "instancePolicy": "terminateOldest"
+    },
+    "presentation": {
+        "reveal": "silent",
+        "close": true,
+    },
+},

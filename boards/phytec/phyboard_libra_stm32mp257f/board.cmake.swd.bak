@@ -1,0 +1,2 @@
+board_runner_args(openocd "--config=/home/phytec/zephyrprojectphytec/zephyr/boards/phytec/phyboard_libra/support/openocd_stm32mp257f_libra_mp33.cfg")
+include(${ZEPHYR_BASE}/boards/common/openocd.board.cmake)

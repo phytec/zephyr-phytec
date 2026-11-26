@@ -1,0 +1,6 @@
+board:
+  name: stm32mp257f_libra
+  full_name: phyFLEX-STM32MP257F FPSC Libra RDK
+  vendor: phytec
+  socs:
+    - name: stm32mp257fxx
