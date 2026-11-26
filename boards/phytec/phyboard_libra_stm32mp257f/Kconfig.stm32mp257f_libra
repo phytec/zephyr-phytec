@@ -1,0 +1,9 @@
+
+#  Copyright (C) 2026 PHYTEC Messtechnik GmbH
+#  Authors: Hong-Ly Ky <h.ky@phytec.fr>
+#            Christophe Parant <c.parant@phytec.fr>
+#            Nicolas Raimundo <n.raimundo@phytec.fr>
+
+
+ config BOARD_STM32MP257F_LIBRA
+    select SOC_STM32MP257FXX_M33 if BOARD_STM32MP257F_LIBRA_STM32MP257FXX_M33

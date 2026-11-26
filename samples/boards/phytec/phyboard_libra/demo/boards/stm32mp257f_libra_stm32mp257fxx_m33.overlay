@@ -1,0 +1,109 @@
+/*
+ * Copyright (C) 2025 PHYTEC Messtechnik GmbH
+ * Authors: Hong-Ly Ky <h.ky@phytec.fr>
+ *          Christophe Parant <c.parant@phytec.fr>
+ *          Nicolas Raimundo <n.raimundo@phytec.fr>
+ */
+ 
+/delete-node/ &ddr_code;
+/delete-node/ &ddr_sys;
+
+#include <zephyr/dt-bindings/display/panel.h>
+#include <zephyr/dt-bindings/input/input-event-codes.h>
+#include <zephyr/dt-bindings/dma/stm32_dma.h>
+
+/ {
+	/* Remap to SRAM1 physical address */
+	ddr_code: memory0@a043000 {
+	reg = <0xa043000 0x1d000>;
+	ranges = <0x0 0xa043000 0x1d000>;
+	#address-cells = <1>;
+	#size-cells = <1>;
+	};
+
+	/* Remap to RETRAM physical address */
+	ddr_sys: memory1@a080000 {
+	reg = <0xa080000 0x1f000>;
+	ranges = <0x0 0xa080000 0x1f000>;
+	#address-cells = <1>;
+	#size-cells = <1>;
+	};
+
+	/* Map to DDR the DDR APP (LVGL UI)*/
+	ddr_app: memory0@80100000 {
+		compatible = "zephyr,memory-region", "mmio-sram";
+		reg = <0x80100000 DT_SIZE_M(8)>;
+		zephyr,memory-region = "DDRAPP";
+	};
+
+	aliases {
+		nunchuk0 = &nunchuk;
+	};
+
+	chosen {
+		/*
+			* shared memory reserved for the inter-processor communication
+			*/
+		zephyr,ipc_shm = &ipc_shmem;
+		zephyr,ipc = &mailbox;
+		zephyr,display=&ili9341;
+	};
+
+	mipi_dbi {
+		compatible = "zephyr,mipi-dbi-spi";
+		dc-gpios = <&gpioz 7 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&gpioz 8 GPIO_ACTIVE_LOW>;
+		write-only;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		spi-dev = <&spi2>;
+
+		ili9341: ili9341@0 {
+			compatible = "ilitek,ili9341";
+			mipi-max-frequency = <40000000>;
+			reg = <0>;
+			width = <240>;
+			height = <320>;
+			rotation = <180>;
+			pixel-format = <PANEL_PIXEL_FORMAT_RGB_565>;
+			h-mirror;
+		};
+	};
+
+	soc {
+
+		hpdma3: hpdma@40420000 {
+			compatible = "st,stm32u5-dma";
+			#dma-cells = <3>;
+			reg = <0x40420000 0x1000>;
+			clocks = <&rcc STM32_CLOCK(HPDMA3, 1)>;
+			interrupts = <65 0>, <66 0>, <67 0>, <68 0>, <69 0>, <70 0>, <71 0>, <72 0>,
+			<73 0>, <74 0>, <75 0>, <76 0>, <77 0>, <78 0>, <79 0>, <80 0>;
+			dma-channels = <16>;
+			dma-requests = <184>;
+			status = "okay";
+		};
+
+	};
+
+	ipc_shmem: memory1@81200000 {
+		compatible = "mmio-sram";
+		reg = <0x81200000 DT_SIZE_M(1)>;
+	};
+};
+
+
+&i2c8 {
+	status = "okay";
+	nunchuk: joystick@52 {
+		compatible = "nintendo,nunchuk";
+		reg = <0x52>;
+		status = "okay";
+	};
+};
+
+&spi2 {
+    dmas = <&hpdma3 0 51 (STM32_DMA_PERIPH_RX | STM32_DMA_PRIORITY_MEDIUM)>,
+           <&hpdma3 1 52 (STM32_DMA_PERIPH_TX | STM32_DMA_PRIORITY_MEDIUM)>;
+    dma-names = "rx", "tx";
+};

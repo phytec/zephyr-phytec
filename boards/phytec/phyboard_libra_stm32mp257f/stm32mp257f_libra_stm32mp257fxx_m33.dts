@@ -1,0 +1,173 @@
+/*
+ * Copyright (C) 2026 PHYTEC Messtechnik GmbH
+ * Authors: Hong-Ly Ky <h.ky@phytec.fr>
+ *          Christophe Parant <c.parant@phytec.fr>
+ *          Nicolas Raimundo <n.raimundo@phytec.fr>
+ */
+
+/dts-v1/;
+#include <st/mp2/stm32mp257_m33.dtsi>
+#include <st/mp2/stm32mp257fakx-pinctrl.dtsi>
+#include <zephyr/dt-bindings/clock/stm32mp2_clock.h>
+#include <zephyr/dt-bindings/adc/adc.h>
+
+/ {
+    model = "phyFLEX-STM32MP257F FPSC Libra RDK" ;
+    compatible = "st,stm32mp25";
+
+    aliases {
+        led0 = &green_led;
+        rgb-led0=&rgb_led;
+        spi-adc0=&spi_adc;
+    };
+
+    reg_vdd_1v8: regulator-vdd-1v8 {
+		compatible = "regulator-fixed";
+		regulator-always-on;
+		regulator-boot-on;
+		regulator-name = "VDD_1V8";
+		status="okay";
+	};
+    
+    chosen {
+        zephyr,console = &uart5;
+        zephyr,shell-uart = &uart5;
+        zephyr,flash = &ddr_code;
+        zephyr,sram = &ddr_sys;
+    };
+
+    leds {
+        compatible = "gpio-leds";
+
+        green_led: led_0 {
+            gpios = <&gpioh 4 GPIO_ACTIVE_HIGH>;
+            label = "X_PH4";
+        };
+    };
+
+};
+
+&clk_hsi {
+    status = "okay";
+};
+
+&clk_hse {
+    clock-frequency = <DT_FREQ_M(40)>;
+    status = "okay";
+};
+
+&rcc {
+    clock-frequency = <DT_FREQ_M(400)>;
+};
+
+&mailbox {
+    status = "okay";
+};
+
+&uart5 {
+    pinctrl-0 = <&uart5_tx_pg9 &uart5_rx_pg10>;
+    pinctrl-names = "default";
+    current-speed = <115200>;
+    status = "okay";
+};
+
+&usart6 {
+	/* NOTE: optional console UART, remains disabled by default */
+	pinctrl-0 = <&usart6_tx_pf13 &usart6_rx_pf14>;
+	pinctrl-names = "default";
+	current-speed = <115200>;
+	status = "disabled";
+};
+
+&i2c8 {
+	pinctrl-0 = <&i2c8_scl_pz4 &i2c8_sda_pz3>;
+	pinctrl-names = "default";
+	scl-gpios = <&gpioz 4 GPIO_ACTIVE_HIGH>;
+	sda-gpios = <&gpioz 3 GPIO_ACTIVE_HIGH>;
+	status = "okay";
+
+    rgb_led: pca9633@62 {
+		compatible="nxp,pca9633";
+		reg = <0x62>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		led_red: led_r@0 {
+		label = "Red";
+		reg = <0>;
+		};
+		led_green: led_g@1 {
+		label = "Green";
+		reg = <1>;
+		};
+		led_blue: led_b@2 {
+		label = "Blue";
+		reg = <2>;
+		};
+	};
+};
+
+&i2c1 {
+	pinctrl-0 = <&i2c1_scl_pg13 &i2c1_sda_pi1>;
+	pinctrl-names = "default";
+	scl-gpios = <&gpiog 13 GPIO_ACTIVE_HIGH>;
+	sda-gpios = <&gpioi 1 GPIO_ACTIVE_HIGH>;
+	status = "disabled";
+};
+
+&i2c2 {
+	pinctrl-0 = <&i2c2_scl_pb5 &i2c2_sda_pb4>;
+	pinctrl-names = "default";
+	scl-gpios = <&gpiob 5 GPIO_ACTIVE_HIGH>;
+	sda-gpios = <&gpiob 4 GPIO_ACTIVE_HIGH>;
+	status = "disabled";
+};
+
+&i2c4 {
+	pinctrl-0 = <&i2c4_scl_pd11 &i2c4_sda_pd10>;
+	pinctrl-names = "default";
+	scl-gpios = <&gpiod 11 GPIO_ACTIVE_HIGH>;
+	sda-gpios = <&gpiod 10 GPIO_ACTIVE_HIGH>;
+	status = "disabled";
+};
+
+&spi2 {
+
+	pinctrl-0 = <&spi2_sck_pb0 &spi2_miso_pb6
+		     &spi2_mosi_pb2>;
+    pinctrl-names = "default";
+    status = "okay";
+
+	cs-gpios = <&gpiob 3 GPIO_ACTIVE_LOW>;
+    
+    
+};
+
+&spi3 {
+    pinctrl-0 = <&spi3_sck_pb7 &spi3_miso_pb10 &spi3_mosi_pb8>;
+    pinctrl-names = "default";
+    status = "okay";
+    cs-gpios = <&gpiob 1 GPIO_ACTIVE_LOW>;
+
+    spi_adc: spi_adc@0 {
+        compatible = "microchip,mcp3208";
+        reg = <0>;
+        spi-max-frequency = <1000000>;
+        vin-supply = <&reg_vdd_1v8>;
+        spi-cpha;
+        spi-cpol;
+        #io-channel-cells = <1>;
+        #address-cells = <1>;
+        #size-cells = <0>;
+
+        channel@7 {
+            reg = <7>;
+            zephyr,gain = "ADC_GAIN_1";
+            zephyr,reference = "ADC_REF_EXTERNAL0";
+            zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+            zephyr,vref-mv = <1800>;
+            zephyr,resolution = <12>;
+        };
+    };
+};
+

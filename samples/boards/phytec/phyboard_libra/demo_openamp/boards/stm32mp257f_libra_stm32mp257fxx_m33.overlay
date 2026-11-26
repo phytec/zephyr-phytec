@@ -1,0 +1,81 @@
+/*
+ * Copyright (C) 2025 PHYTEC Messtechnik GmbH
+ * Authors: Hong-Ly Ky <h.ky@phytec.fr>
+ *          Christophe Parant <c.parant@phytec.fr>
+ *          Nicolas Raimundo <n.raimundo@phytec.fr>
+ */
+ 
+/delete-node/ &ddr_code;
+/delete-node/ &ddr_sys;
+
+#include <zephyr/dt-bindings/display/panel.h>
+
+
+/ {
+   /* Remap to SRAM1 physical address */
+   ddr_code: memory0@a043000 {
+     reg = <0xa043000 0x1d000>;
+     ranges = <0x0 0xa043000 0x1d000>;
+     #address-cells = <1>;
+     #size-cells = <1>;
+   };
+
+   /* Remap to RETRAM physical address */
+   ddr_sys: memory1@a080000 {
+     reg = <0xa080000 0x1f000>;
+     ranges = <0x0 0xa080000 0x1f000>;
+     #address-cells = <1>;
+     #size-cells = <1>;
+   };
+
+  aliases {
+ 		nunchuk0 = &nunchuk;
+ 	};
+  
+
+	chosen {
+		/*
+		 * shared memory reserved for the inter-processor communication
+		 */
+		zephyr,ipc_shm = &ipc_shmem;
+		zephyr,ipc = &mailbox;
+
+    	zephyr,display=&ili9341;
+	};
+
+	mipi_dbi {
+    compatible = "zephyr,mipi-dbi-spi";
+		dc-gpios = <&gpioz 7 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&gpioz 8 GPIO_ACTIVE_LOW>;
+		write-only;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		spi-dev = <&spi2>;
+
+		ili9341: ili9341@0 {
+		    compatible = "ilitek,ili9341";
+		    mipi-max-frequency = <40000000>;
+		    reg = <0>;
+		    width = <240>;
+		    height = <320>;
+		    rotation = <180>;
+		    pixel-format = <PANEL_PIXEL_FORMAT_RGB_565>;
+		    h-mirror;
+    };
+  };
+
+	ipc_shmem: memory1@81200000 {
+		compatible = "mmio-sram";
+		reg = <0x81200000 DT_SIZE_M(1)>;
+	};
+};
+
+
+&i2c8 {
+	status = "okay";
+	nunchuk: joystick@52 {
+		compatible = "nintendo,nunchuk";
+		reg = <0x52>;
+		status = "okay";
+	};
+};

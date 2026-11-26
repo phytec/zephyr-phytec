@@ -1,0 +1,24 @@
+identifier: stm32mp257f_libra/stm32mp257fxx/m33
+name: STM32MP257F_LIBRA
+type: mcu
+arch: arm
+toolchain:
+  - zephyr
+  - gccarmemb
+supported:
+  - gpio
+  - i2c
+  - spi
+  - hpdma
+testing:
+  ignore_tags:
+    - cmsis_rtos_v2
+    - net
+    - mpu
+    - crypto
+    - aes
+    - cmm
+    - nfc
+ram: 8192
+flash: 8192
+vendor: phytec
