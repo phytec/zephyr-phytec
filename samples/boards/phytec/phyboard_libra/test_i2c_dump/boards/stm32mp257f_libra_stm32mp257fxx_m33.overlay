@@ -1,0 +1,44 @@
+/*
+ * Copyright (C) 2025 PHYTEC Messtechnik GmbH
+ * Authors: Hong-Ly Ky <h.ky@phytec.fr>
+ *          Christophe Parant <c.parant@phytec.fr>
+ *          Nicolas Raimundo <n.raimundo@phytec.fr>
+ */
+ 
+#include <zephyr/dt-bindings/display/panel.h>
+#include <zephyr/dt-bindings/input/input-event-codes.h>
+#include <zephyr/dt-bindings/dma/stm32_dma.h>
+ 
+/delete-node/ &ddr_code;
+/delete-node/ &ddr_sys;
+
+/ {
+   /* Remap to SRAM1 physical address */
+   ddr_code: memory0@a043000 {
+     reg = <0xa043000 0x1d000>;
+     ranges = <0x0 0xa043000 0x1d000>;
+     #address-cells = <1>;
+     #size-cells = <1>;
+   };
+
+   /* Remap to RETRAM physical address */
+   ddr_sys: memory1@a080000 {
+     reg = <0xa080000 0x1f000>;
+     ranges = <0x0 0xa080000 0x1f000>;
+     #address-cells = <1>;
+     #size-cells = <1>;
+   };
+   
+     aliases {
+ 		nunchuk0 = &nunchuk;
+ 	};
+};
+
+&i2c8 {
+  status="okay";
+	nunchuk: joystick@52 {
+		compatible = "nintendo,nunchuk";
+		reg = <0x52>;
+    status="okay";
+	};
+};
